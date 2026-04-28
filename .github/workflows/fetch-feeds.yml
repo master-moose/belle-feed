@@ -32,7 +32,7 @@ jobs:
       - name: Check if articles changed
         id: check_changes
         run: |
-          if git diff --quiet public/articles.json; then
+          if git diff --quiet articles.json; then
             echo "changed=false" >> $GITHUB_OUTPUT
           else
             echo "changed=true" >> $GITHUB_OUTPUT
@@ -43,7 +43,7 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add public/articles.json
+          git add articles.json
           git commit -m "Update articles feed [skip ci]"
           git push
 

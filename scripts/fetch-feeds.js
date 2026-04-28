@@ -7,13 +7,7 @@ const { XMLParser } = require('fast-xml-parser');
 
 const SUBSTACK_FEED = 'https://belledejong.substack.com/feed';
 const EC_FEED = 'https://europeancorrespondent.com/en/feed.xml';
-const OUTPUT_DIR = path.join(__dirname, '..', 'public');
-const OUTPUT_FILE = path.join(OUTPUT_DIR, 'articles.json');
-
-// Ensure output directory exists
-if (!fs.existsSync(OUTPUT_DIR)) {
-  fs.mkdirSync(OUTPUT_DIR, { recursive: true });
-}
+const OUTPUT_FILE = path.join(__dirname, '..', 'articles.json');
 
 async function fetchFeed(url) {
   return new Promise((resolve, reject) => {
