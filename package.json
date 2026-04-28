@@ -1,0 +1,15 @@
+{
+  "name": "belle-feed",
+  "version": "1.0.0",
+  "description": "RSS feed aggregator for Belle de Jong",
+  "main": "scripts/fetch-feeds.js",
+  "scripts": {
+    "fetch": "node scripts/fetch-feeds.js"
+  },
+  "keywords": ["rss", "feed", "substack"],
+  "author": "Jai",
+  "license": "MIT",
+  "dependencies": {
+    "fast-xml-parser": "^4.4.1"
+  }
+}
