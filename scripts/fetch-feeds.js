@@ -98,6 +98,15 @@ function isBelleArticle(item) {
   return authorName && authorName.toLowerCase().includes('belle de jong');
 }
 
+function isValidArticle(article) {
+  // Filter out placeholder/draft articles
+  const excludeTitles = ['Coming soon'];
+  if (excludeTitles.includes(article.title)) {
+    return false;
+  }
+  return true;
+}
+
 async function run() {
   try {
     console.log('Fetching feeds...');
@@ -110,16 +119,18 @@ async function run() {
       console.log('  Fetching Substack...');
       const substackXml = await fetchFeed(SUBSTACK_FEED);
       const substackParsed = parseSubstackFeed(substackXml);
-      substackItems = substackParsed.map(item => ({
-        title: item.title,
-        url: item.link,
-        source: 'substack',
-        sourceLabel: 'Substack',
-        date: new Date(item.pubDate).toISOString(),
-        excerpt: extractExcerpt(stripSubstackMarkup(item['content:encoded'] || item.description)),
-        thumbnail: extractThumbnail(item, 'substack')
-      }));
-      console.log(`  Found ${substackItems.length} Substack articles`);
+      substackItems = substackParsed
+        .filter(isValidArticle)
+        .map(item => ({
+          title: item.title,
+          url: item.link,
+          source: 'substack',
+          sourceLabel: 'Substack',
+          date: new Date(item.pubDate).toISOString(),
+          excerpt: extractExcerpt(stripSubstackMarkup(item['content:encoded'] || item.description)),
+          thumbnail: extractThumbnail(item, 'substack')
+        }));
+      console.log(`  Found ${substackItems.length} Substack articles (after filtering)`);
     } catch (err) {
       console.error('Error fetching Substack:', err.message);
     }
