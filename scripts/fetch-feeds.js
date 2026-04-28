@@ -19,12 +19,44 @@ async function fetchFeed(url) {
   });
 }
 
+function decodeHtmlEntities(text) {
+  const entities = {
+    '&amp;': '&',
+    '&lt;': '<',
+    '&gt;': '>',
+    '&quot;': '"',
+    '&#39;': "'",
+    '&apos;': "'",
+    '&#8211;': '–',
+    '&#8212;': '—',
+    '&#8217;': "'",
+    '&#8220;': '"',
+    '&#8221;': '"',
+    '&nbsp;': ' ',
+    '&#160;': ' '
+  };
+
+  let decoded = text;
+  Object.entries(entities).forEach(([entity, char]) => {
+    decoded = decoded.replace(new RegExp(entity, 'g'), char);
+  });
+
+  // Decode numeric entities: &#123; or &#x1F;
+  decoded = decoded.replace(/&#(\d+);/g, (match, dec) => String.fromCharCode(parseInt(dec, 10)));
+  decoded = decoded.replace(/&#x([0-9a-f]+);/gi, (match, hex) => String.fromCharCode(parseInt(hex, 16)));
+
+  return decoded;
+}
+
 function extractExcerpt(html, maxWords = 150) {
   // Strip HTML tags
   let text = html
     .replace(/<[^>]*>/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
+
+  // Decode HTML entities
+  text = decodeHtmlEntities(text);
 
   // Split by words and cap at maxWords
   const words = text.split(/\s+/);
