@@ -9,13 +9,27 @@ const SUBSTACK_FEED = 'https://belledejong.substack.com/feed';
 const EC_FEED = 'https://europeancorrespondent.com/en/feed.xml';
 const OUTPUT_FILE = path.join(__dirname, '..', 'articles.json');
 
-async function fetchFeed(url) {
+async function fetchFeed(url, maxRetries = 2) {
   return new Promise((resolve, reject) => {
-    https.get(url, { timeout: 10000 }, (res) => {
-      let data = '';
-      res.on('data', (chunk) => { data += chunk; });
-      res.on('end', () => resolve(data));
-    }).on('error', reject);
+    const attempt = (retriesLeft) => {
+      https.get(url, { timeout: 15000 }, (res) => {
+        if (res.statusCode < 200 || res.statusCode >= 300) {
+          reject(new Error(`HTTP ${res.statusCode}: ${res.statusMessage || 'Unknown error'}`));
+          return;
+        }
+        let data = '';
+        res.on('data', (chunk) => { data += chunk; });
+        res.on('end', () => resolve(data));
+      }).on('error', (err) => {
+        if (retriesLeft > 0) {
+          console.log(`  Retry ${maxRetries - retriesLeft + 1}/${maxRetries} after error: ${err.message}`);
+          setTimeout(() => attempt(retriesLeft - 1), 1000 * (maxRetries - retriesLeft));
+        } else {
+          reject(err);
+        }
+      });
+    };
+    attempt(maxRetries);
   });
 }
 
